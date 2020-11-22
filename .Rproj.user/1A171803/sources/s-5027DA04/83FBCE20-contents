@@ -1,0 +1,146 @@
+---
+title: "Projet de Visualisation"
+author: "Antoine Lucas, Océane Guitton, Chloé Tellier"
+institute: "Agrocampus Ouest"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    nature:
+      highlightStyle: solarized-light
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include = FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(out.width = "40%",out.height = "40%",
+                      warning = FALSE, eval=TRUE,
+                      out.extra='style="float:left; padding:10px"')
+
+```
+
+```{r packages, include = FALSE}
+
+# Load necessary packages for generation of R code in the presentation
+
+## Only needed to run for the set-up
+
+library(xaringan)
+library(xaringanthemer)
+library(xaringanExtra)
+library(showtext)
+
+
+library(tidyverse)
+library(ggpubr)
+library(gganimate)
+```
+
+```{r xaringanExtra, include = FALSE}
+
+xaringanExtra::use_tachyons()
+xaringanExtra::use_tile_view()
+xaringanExtra::use_editable(expires = 1)
+xaringanExtra::use_panelset()
+xaringanExtra::use_extra_styles(hover_code_line = TRUE)
+
+```
+
+```{r xaringan-themer, include=FALSE}
+# sélection du thème de couleurs du slideshow
+style_duo(primary_color = "#1F4257", secondary_color = "#F97B64",
+          header_h1_font_size="2rem",header_h2_font_size="1.5rem")
+```
+
+---
+
+# Le dataset
+
+Nous avons choisis le jeu de données *storms* présent dans le package `{dplyr}`. Ce jeu de données est issus d'une grande base de données sur les ouragans : [NHC](https://www.nhc.noaa.gov/data/).
+
+```{r }
+head(storms)
+dim(storms)
+str(storms)
+```
+
+Le dataset *storms* est automatiquement chargé.
+
+Idées de visus :
+
+```{r}
+
+# intensite pour chaque type de tempete
+
+# map sur les tempetes
+
+# idee : on fait un histo/barplot du nbr de tempetes selon les mois (+ par types de tempetes) + gganimate faire un "gif" de la visu pour chaque année (écrit l'année en haut à droite genre). cf package gganimate
+# courbe evolution nbr de tempetes par annes/mois dans une annees par type de tempetes
+
+
+```
+
+- Visu du barplot selon le nbr de tempête au cours des mois et ce en gif pour chaque années.
+
+```{r}
+
+# un test pas trop mal !
+hist <- storms %>% group_by(name,month,status) %>% 
+  ggplot() +
+  geom_bar(aes(x=as.factor(month),fill=status)) +
+  transition_states(year) +
+  geom_text(x=3,y=100,aes(label = as.character(year)),
+            size = 8, col = "grey50") + 
+  theme_bw() +
+  labs(x = "Month",y = "Number of Storms")
+
+
+```
+
+- visu sur la force du vent aux cours des années si ça évolue ou non?
+
+```{r}
+
+# force du vent par années
+storms %>% group_by(year,status) %>% 
+  summarise(wind_force=mean(wind)) %>% 
+  ggplot() +
+  geom_line(aes(x=year,y=wind_force,color=status))
+
+
+```
+
+
+```{r}
+# on cherche a plotter les ts et hu diam pour les données où il y a les valeurs et donc au dessus de 2003
+
+storms %>% filter(year > 2003, category >= 0) %>%
+  group_by(name,year,status,category) %>% 
+  summarise(meanw=mean(wind),
+            meanp=mean(pressure),
+            meants=mean(ts_diameter)) %>%
+  ggplot() +
+  geom_point(aes(x=meanw,y=meanp,color=as.factor(category)))
+  
+
+  
+
+```
+
+
+en 2003, 2 nouveaux indices sont introduit pour mesurer :
+- Diamètre de la zone subissant des vents de la force d'une tempête tropicale (34 nœuds ou plus)
+-Diamètre de la zone subissant des vents de la force d'un ouragan (64 nœuds ou plus)
+
+
+
+
+
+
+
+
+
+
+
+
+
